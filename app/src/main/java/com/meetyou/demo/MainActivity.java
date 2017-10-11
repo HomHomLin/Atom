@@ -5,7 +5,9 @@ import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.meiyou.atom.AtomTaskNode;
 import com.meiyou.atom.inject.WorkThread;
+import com.meiyou.atom.managers.TaskManager;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -14,31 +16,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Test.init();
+        test2("test",this,1);
+    }
+    public void t1(MainActivity activity, String s, int q){
+        AtomMeta meta = new AtomMeta(this, activity,s,q);
+        TaskManager.getIntance().submitTask("delay;100;taskName;test;", meta);
     }
 
-    public void t(MainActivity activity, String s){
+    public void t2( String s,MainActivity activity){
 
     }
 
-    public int add(int x){
-        return x+1;
+
+    public void t3(String test, MainActivity activity, int q){
     }
 
-//    @UiThread("delay = 100, mode = fix")
-    public void test(String test, MainActivity activity, int q){
-        //EVENT
-
-        //A(work)
-        //A....
-        //B....
-        //A....
-        // -> B(mix:work)
-    }
-
-    @WorkThread
+    @WorkThread(delay = 100, taskName = "test")
     public void test2(String test, MainActivity activity, int q){
-        //wangluo
-        //....something
-        test(test,activity,q);
+        int t;
     }
 }

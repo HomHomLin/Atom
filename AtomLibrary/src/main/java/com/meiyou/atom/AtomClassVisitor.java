@@ -9,7 +9,9 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.commons.AdviceAdapter;
+import org.objectweb.asm.tree.AnnotationNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +46,7 @@ public class AtomClassVisitor extends ClassVisitor {
         methodVisitor = new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, desc) {
 
             public boolean mAtomInject = false;
+            public AnnotationNode mAnnotationNode;
 
             /**
              * 读取注解
@@ -54,13 +57,15 @@ public class AtomClassVisitor extends ClassVisitor {
             @Override
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                 if (Type.getDescriptor(WorkThread.class).equals(desc)) {
+                    mAnnotationNode = new AnnotationNode(desc);
                     mAtomInject = true;
                     mIndex ++;
+                    return mAnnotationNode;
                 }
                 return super.visitAnnotation(desc, visible);
             }
 
-//            /**
+            //            /**
 //             * 读取参数,如果是atom,则将其参数改为final
 //             * @param name
 //             * @param access
@@ -101,6 +106,11 @@ public class AtomClassVisitor extends ClassVisitor {
                 atomNode.mTypeDescrible = typeDescrible;
                 atomNode.mMethodName = name;
                 atomNode.mdesc = desc;
+                atomNode.mAccess = access;
+                atomNode.mSignature = signature;
+                atomNode.mExceptions = exceptions;
+                atomNode.mAnnotation = mAnnotationNode;
+                atomNode.mIndex = mIndex;
                 mAtomNodes.add(atomNode);
 
             }

@@ -68,8 +68,22 @@ public class AtomMetaWriter implements Opcodes {
         {
             mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
             mv.visitCode();
+            //do somethings...
+            //读取源对象
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETFIELD, "com/meiyou/atom/metas/AtomMeta" + index, "varObj", "L" + node.mClazz + ";");
+
+            List<Type> types = node.mTypes;
+            if(types != null) {
+                for (int i = 0; i < types.size(); i ++){
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, "com/meiyou/atom/metas/AtomMeta" + index, "var" + i, types.get(i).toString());
+                }
+            }
+            mv.visitMethodInsn(INVOKEVIRTUAL, node.mClazz, node.mMethodName, node.mdesc, false);
+
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 1);
+            mv.visitMaxs(1 + (types == null ? 0 : types.size()), 1);
             mv.visitEnd();
         }
         cw.visitEnd();

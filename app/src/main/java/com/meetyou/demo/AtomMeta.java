@@ -6,15 +6,13 @@ package com.meetyou.demo;
 
 public class AtomMeta implements Runnable{
     private MainActivity activity;
-    private String s;
 
-    public AtomMeta(MainActivity activity, String s) {
+    public AtomMeta(MainActivity activity,MainActivity activity2, String s, int q) {
         this.activity = activity;
-        this.s = s;
     }
 
     @Override
     public void run() {
-        activity.t(activity,s);
+        activity.t2(null,activity);
     }
 }

@@ -90,10 +90,19 @@ public class PluginImpl extends Transform implements Plugin<Project> {
                                     AtomClassVisitor cv = new AtomClassVisitor(Opcodes.ASM5,classWriter, mIndex)
                                     classReader.accept(cv, EXPAND_FRAMES)
                                     if(cv.mAtomNodes != null){
-                                        mAtomNodeList.addAll(cv.mAtomNodes)
                                         mIndex = cv.mIndex
+                                        mAtomNodeList.addAll(cv.mAtomNodes)
                                         for(AtomNode atomNode : cv.mAtomNodes){
                                             println "Atom find:" + atomNode
+                                            AnnotationNode annotationNode = atomNode.mAnnotation
+                                            if(annotationNode != null &&annotationNode.values != null){
+                                                String desc = ""
+                                                for(int node_index = 0 ; node_index < annotationNode.values.size(); node_index ++){
+                                                    desc = desc + String.valueOf(annotationNode.values.get(node_index)) + ";"
+                                                }
+
+                                                println "desc:    " + desc;
+                                            }
                                         }
                                     }
                                     ClassWriter makeClassWriter = new ClassWriter(classReader,ClassWriter.COMPUTE_MAXS)
@@ -160,10 +169,11 @@ public class PluginImpl extends Transform implements Plugin<Project> {
                             AtomClassVisitor cv = new AtomClassVisitor(Opcodes.ASM5,classWriter, mIndex)
                             classReader.accept(cv, EXPAND_FRAMES)
                             if(cv.mAtomNodes != null){
-                                mAtomNodeList.addAll(cv.mAtomNodes)
                                 mIndex = cv.mIndex
+                                mAtomNodeList.addAll(cv.mAtomNodes)
                                 for(AtomNode atomNode : cv.mAtomNodes){
                                     println "Atom find:" + atomNode
+
                                 }
                             }
                             ClassWriter makeClassWriter = new ClassWriter(classReader,ClassWriter.COMPUTE_MAXS)

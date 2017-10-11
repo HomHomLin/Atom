@@ -13,5 +13,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface WorkThread {
   //需要一些额外参数
-  String value() default "";
+  String taskName() default "";
+  long delay() default 0;
 }

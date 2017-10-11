@@ -8,6 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
+import org.objectweb.asm.tree.AnnotationNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  * Created by Linhh on 2017/10/10.
  */
 
-public class AtomMakeClassVisitor extends ClassVisitor {
+public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
     private String mClazzName;
     private String mOutClazzName;
     public List<AtomNode> mAtomNodes;
@@ -48,6 +49,52 @@ public class AtomMakeClassVisitor extends ClassVisitor {
             }
         }
         return cv.visitMethod(access, name, desc, signature, exceptions);
+
+    }
+
+    @Override
+    public void visitEnd() {
+        if(mOutClazzName.equals(mClazzName) && mAtomNodes != null) {
+            for(AtomNode node : mAtomNodes){
+                MethodVisitor mv = cv.visitMethod(node.mAccess, node.mMethodName, node.mdesc, node.mSignature, node.mExceptions);
+                mv.visitCode();
+                //创建tasknode
+                String meta = "com/meiyou/atom/metas/AtomMeta" + node.mIndex;
+                mv.visitTypeInsn(NEW, meta);
+                mv.visitInsn(DUP);
+                mv.visitVarInsn(ALOAD, 0);
+
+                String initDesc  = "";
+                List<Type> types = node.mTypes;
+                if(types != null) {
+                    for (int i = 0; i < types.size(); i ++){
+                        initDesc = initDesc + types.get(i).toString();
+                        mv.visitVarInsn(ALOAD, i + 1);
+//                    fv = cw.visitField(ACC_PRIVATE, "var" + i, types.get(i).toString(), null, null);
+//                    fv.visitEnd();
+                    }
+                }
+                mv.visitMethodInsn(INVOKESPECIAL, meta, "<init>", "("+"L" + node.mClazz + ";" + initDesc + ")V", false);
+                mv.visitVarInsn(ASTORE, 2);
+                mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/TaskManager", "getIntance", "()Lcom/meiyou/atom/managers/TaskManager;", false);
+                AnnotationNode annotationNode = node.mAnnotation;
+
+                String annotationNodeDesc = "";
+                if(annotationNode != null && annotationNode.values != null){
+                    for(int node_index = 0 ; node_index < annotationNode.values.size(); node_index ++){
+                        annotationNodeDesc = annotationNodeDesc + String.valueOf(annotationNode.values.get(node_index)) + ";";
+                    }
+                }
+                mv.visitLdcInsn(annotationNodeDesc);
+                mv.visitVarInsn(ALOAD, 2);
+                mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/TaskManager", "submitTask", "(Ljava/lang/String;Ljava/lang/Runnable;)V", false);
+
+                mv.visitInsn(RETURN);
+                mv.visitMaxs(1 + (node.mTypes == null ? 0 : node.mTypes.size()), 1 + (node.mTypes == null ? 0 : node.mTypes.size()));
+                mv.visitEnd();
+            }
+        }
+        super.visitEnd();
 
     }
 }
