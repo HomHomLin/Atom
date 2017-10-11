@@ -1,6 +1,7 @@
 package com.meiyou.atom;
 
 
+import com.meiyou.atom.inject.UiThread;
 import com.meiyou.atom.inject.WorkThread;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -37,6 +38,11 @@ public class AtomClassVisitor extends ClassVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        return super.visitAnnotation(desc, visible);
+    }
+
+    @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature,
                                      String[] exceptions) {
         if(name.startsWith("atomOrgin_")){
@@ -45,7 +51,8 @@ public class AtomClassVisitor extends ClassVisitor {
         MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
         methodVisitor = new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, desc) {
 
-            public boolean mAtomInject = false;
+            public boolean mAtomWorkThreadInject = false;
+            public boolean mAtomUIThreadInject = false;
             public AnnotationNode mAnnotationNode;
 
             /**
@@ -58,7 +65,12 @@ public class AtomClassVisitor extends ClassVisitor {
             public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                 if (Type.getDescriptor(WorkThread.class).equals(desc)) {
                     mAnnotationNode = new AnnotationNode(desc);
-                    mAtomInject = true;
+                    mAtomWorkThreadInject = true;
+                    mIndex ++;
+                    return mAnnotationNode;
+                }else if (Type.getDescriptor(UiThread.class).equals(desc)) {
+                    mAnnotationNode = new AnnotationNode(desc);
+                    mAtomUIThreadInject = true;
                     mIndex ++;
                     return mAnnotationNode;
                 }
@@ -87,37 +99,36 @@ public class AtomClassVisitor extends ClassVisitor {
             @Override
             public void visitCode() {
                 super.visitCode();
-                if(!mAtomInject){
-                    return;
+                if(mAtomWorkThreadInject || mAtomUIThreadInject){
+                    if(mAtomNodes == null){
+                        mAtomNodes = new ArrayList<>();
+                    }
+                    List<Type> paramsTypeClass = new ArrayList();
+                    Type[] argsType = Type.getArgumentTypes(desc);
+                    String typeDescrible = "";
+                    for (Type type : argsType) {
+                        paramsTypeClass.add(type);
+                        typeDescrible = typeDescrible + type;
+                    }
+                    AtomNode atomNode = new AtomNode();
+                    atomNode.mClazz = mClazzName;
+                    atomNode.mTypes = paramsTypeClass;
+                    atomNode.mTypeDescrible = typeDescrible;
+                    atomNode.mMethodName = name;
+                    atomNode.mdesc = desc;
+                    atomNode.mAccess = access;
+                    atomNode.mSignature = signature;
+                    atomNode.mExceptions = exceptions;
+                    atomNode.mAnnotation = mAnnotationNode;
+                    atomNode.mIndex = mIndex;
+                    atomNode.mNodeType = mAtomUIThreadInject ? AtomVar.TYPE_UITHREAD : AtomVar.TYPE_WORKTHREAD;
+                    mAtomNodes.add(atomNode);
                 }
-                if(mAtomNodes == null){
-                    mAtomNodes = new ArrayList<>();
-                }
-                List<Type> paramsTypeClass = new ArrayList();
-                Type[] argsType = Type.getArgumentTypes(desc);
-                String typeDescrible = "";
-                for (Type type : argsType) {
-                    paramsTypeClass.add(type);
-                    typeDescrible = typeDescrible + type;
-                }
-                AtomNode atomNode = new AtomNode();
-                atomNode.mClazz = mClazzName;
-                atomNode.mTypes = paramsTypeClass;
-                atomNode.mTypeDescrible = typeDescrible;
-                atomNode.mMethodName = name;
-                atomNode.mdesc = desc;
-                atomNode.mAccess = access;
-                atomNode.mSignature = signature;
-                atomNode.mExceptions = exceptions;
-                atomNode.mAnnotation = mAnnotationNode;
-                atomNode.mIndex = mIndex;
-                mAtomNodes.add(atomNode);
-
             }
 
             @Override
             protected void onMethodEnter() {
-                if(!mAtomInject){
+                if(!mAtomWorkThreadInject){
                     return;
                 }
             }

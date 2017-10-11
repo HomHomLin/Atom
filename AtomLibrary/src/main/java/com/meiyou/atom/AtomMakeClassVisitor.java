@@ -76,7 +76,11 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                 }
                 mv.visitMethodInsn(INVOKESPECIAL, meta, "<init>", "("+"L" + node.mClazz + ";" + initDesc + ")V", false);
                 mv.visitVarInsn(ASTORE, 2);
-                mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/TaskManager", "getIntance", "()Lcom/meiyou/atom/managers/TaskManager;", false);
+                if(node.mNodeType == AtomVar.TYPE_WORKTHREAD) {
+                    mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/TaskManager", "getIntance", "()Lcom/meiyou/atom/managers/TaskManager;", false);
+                }else if(node.mNodeType == AtomVar.TYPE_UITHREAD) {
+                    mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/UIThreadManager", "getIntance", "()Lcom/meiyou/atom/managers/UIThreadManager;", false);
+                }
                 AnnotationNode annotationNode = node.mAnnotation;
 
                 String annotationNodeDesc = "";
@@ -87,7 +91,11 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                 }
                 mv.visitLdcInsn(annotationNodeDesc);
                 mv.visitVarInsn(ALOAD, 2);
-                mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/TaskManager", "submitTask", "(Ljava/lang/String;Ljava/lang/Runnable;)V", false);
+                if(node.mNodeType == AtomVar.TYPE_WORKTHREAD) {
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/TaskManager", "submitTask", "(Ljava/lang/String;Ljava/lang/Runnable;)V", false);
+                }else if(node.mNodeType == AtomVar.TYPE_UITHREAD){
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/UIThreadManager", "submitTask", "(Ljava/lang/String;Ljava/lang/Runnable;)V", false);
+                }
 
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(1 + (node.mTypes == null ? 0 : node.mTypes.size()), 1 + (node.mTypes == null ? 0 : node.mTypes.size()));
