@@ -1,7 +1,6 @@
 package com.meiyou.atom.managers;
 
 import com.meiyou.atom.Atom;
-import com.meiyou.atom.AtomTaskNode;
 import com.meiyou.atom.DescProcessor;
 import com.meiyou.atom.converts.TaskConvert;
 

@@ -17,6 +17,7 @@ public class Test {
             @Override
             public void submitTask(AtomTaskNode node, Runnable runnable) {
                 Log.i("Test-Atom", "Atom is called" + node.taskName);
+                runnable.run();
             }
         }));
     }

@@ -7,5 +7,5 @@ import com.meiyou.atom.AtomTaskNode;
  */
 
 public interface TaskConvert {
-    public void submitTask(AtomTaskNode node,Runnable runnable);
+    public void submitTask(AtomTaskNode node, Runnable runnable);
 }

@@ -80,7 +80,7 @@ public class AtomMetaWriter implements Opcodes {
                     mv.visitFieldInsn(GETFIELD, "com/meiyou/atom/metas/AtomMeta" + index, "var" + i, types.get(i).toString());
                 }
             }
-            mv.visitMethodInsn(INVOKEVIRTUAL, node.mClazz, node.mMethodName, node.mdesc, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, node.mClazz, "atomOrgin_" + node.mMethodName, node.mdesc, false);
 
             mv.visitInsn(RETURN);
             mv.visitMaxs(1 + (types == null ? 0 : types.size()), 1);

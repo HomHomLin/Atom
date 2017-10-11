@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/AtomClient" />
             <option value="$PROJECT_DIR$/AtomLibrary" />
             <option value="$PROJECT_DIR$/app" />
           </set>

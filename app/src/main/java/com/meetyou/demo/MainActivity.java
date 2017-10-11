@@ -18,6 +18,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Test.init();
         test2("test",this,1);
+        t3("test",this,1);
+        test2("test",this,1);
     }
     public void t1(MainActivity activity, String s, int q){
         AtomMeta meta = new AtomMeta(this, activity,s,q);
@@ -28,12 +30,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    @WorkThread(delay = 100, taskName = "test2")
     public void t3(String test, MainActivity activity, int q){
+        Log.i("Test-Atom", "test3 is call");
     }
 
     @WorkThread(delay = 100, taskName = "test")
     public void test2(String test, MainActivity activity, int q){
-        int t;
+        Log.i("Test-Atom", "test2 is call");
     }
 }

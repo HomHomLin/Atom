@@ -1,1 +1,1 @@
-include ':app', ':AtomLibrary'
+include ':app', ':AtomLibrary', ':AtomClient'
