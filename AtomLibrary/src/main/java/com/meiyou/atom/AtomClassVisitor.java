@@ -1,6 +1,9 @@
 package com.meiyou.atom;
 
 
+import com.meiyou.atom.inject.MActivity;
+import com.meiyou.atom.inject.MFragment;
+import com.meiyou.atom.inject.MViewGroup;
 import com.meiyou.atom.inject.UiThread;
 import com.meiyou.atom.inject.WorkThread;
 
@@ -10,7 +13,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.TypePath;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.tree.AnnotationNode;
 
@@ -25,6 +27,8 @@ public class AtomClassVisitor extends ClassVisitor {
     public String mClazzName;
     public List<AtomNode> mAtomNodes;
     public int mIndex;
+    public AnnotationNode mClazzNode;
+    public int mClazzType = -1;
 
     public AtomClassVisitor(int api, ClassVisitor cv, int index) {
         super(api, cv);
@@ -39,6 +43,19 @@ public class AtomClassVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        if (Type.getDescriptor(MActivity.class).equals(desc)) {
+            mClazzNode = new AnnotationNode(desc);
+            mClazzType = AtomVar.TYPE_ACTIVITY;
+            return mClazzNode;
+        }else if (Type.getDescriptor(MFragment.class).equals(desc)) {
+            mClazzNode = new AnnotationNode(desc);
+            mClazzType = AtomVar.TYPE_FRAGMENT;
+            return mClazzNode;
+        }else if (Type.getDescriptor(MViewGroup.class).equals(desc)) {
+            mClazzNode = new AnnotationNode(desc);
+            mClazzType = AtomVar.TYPE_VIEW;
+            return mClazzNode;
+        }
         return super.visitAnnotation(desc, visible);
     }
 
@@ -126,12 +143,6 @@ public class AtomClassVisitor extends ClassVisitor {
                 }
             }
 
-            @Override
-            protected void onMethodEnter() {
-                if(!mAtomWorkThreadInject){
-                    return;
-                }
-            }
         };
 
         return methodVisitor;

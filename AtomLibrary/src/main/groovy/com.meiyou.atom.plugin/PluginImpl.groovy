@@ -4,6 +4,8 @@ import com.android.build.api.transform.*
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.meiyou.atom.AtomClassVisitor
+import com.meiyou.atom.AtomClazzMaker
+import com.meiyou.atom.AtomClazzNode
 import com.meiyou.atom.AtomMakeClassVisitor
 import com.meiyou.atom.AtomMetaWriter
 import com.meiyou.atom.AtomNode
@@ -94,19 +96,19 @@ public class PluginImpl extends Transform implements Plugin<Project> {
                                         mAtomNodeList.addAll(cv.mAtomNodes)
                                         for(AtomNode atomNode : cv.mAtomNodes){
                                             println "Atom find:" + atomNode
-                                            AnnotationNode annotationNode = atomNode.mAnnotation
-                                            if(annotationNode != null &&annotationNode.values != null){
-                                                String desc = ""
-                                                for(int node_index = 0 ; node_index < annotationNode.values.size(); node_index ++){
-                                                    desc = desc + String.valueOf(annotationNode.values.get(node_index)) + ";"
-                                                }
-
-                                                println "desc:    " + desc;
-                                            }
+                                        }
+                                    }
+                                    //类注解处理
+                                    int type = cv.mClazzType
+                                    AtomClazzNode clazzNode = null;
+                                    if(type != -1){
+                                        //存在类处理
+                                        if(cv.mClazzNode != null && cv.mClazzNode.values != null){
+                                            clazzNode = AtomClazzMaker.makeClazzNode(type, cv.mClazzNode.values)
                                         }
                                     }
                                     ClassWriter makeClassWriter = new ClassWriter(classReader,ClassWriter.COMPUTE_MAXS)
-                                    AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes)
+                                    AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes,clazzNode )
                                     classReader.accept(makecv, EXPAND_FRAMES)
                                     byte[] code = makeClassWriter.toByteArray()
                                     FileOutputStream fos = new FileOutputStream(
@@ -173,11 +175,19 @@ public class PluginImpl extends Transform implements Plugin<Project> {
                                 mAtomNodeList.addAll(cv.mAtomNodes)
                                 for(AtomNode atomNode : cv.mAtomNodes){
                                     println "Atom find:" + atomNode
-
+                                }
+                            }
+                            //类注解处理
+                            int type = cv.mClazzType
+                            AtomClazzNode clazzNode = null;
+                            if(type != -1){
+                                //存在类处理
+                                if(cv.mClazzNode != null && cv.mClazzNode.values != null){
+                                    clazzNode = AtomClazzMaker.makeClazzNode(type, cv.mClazzNode.values)
                                 }
                             }
                             ClassWriter makeClassWriter = new ClassWriter(classReader,ClassWriter.COMPUTE_MAXS)
-                            AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes)
+                            AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes,clazzNode )
                             classReader.accept(makecv, EXPAND_FRAMES)
                             byte[] code = makeClassWriter.toByteArray()
                             jarOutputStream.write(code);
