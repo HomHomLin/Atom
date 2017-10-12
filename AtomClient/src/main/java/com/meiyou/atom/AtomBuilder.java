@@ -1,5 +1,6 @@
 package com.meiyou.atom;
 
+import com.meiyou.atom.converts.LayoutInflaterConvert;
 import com.meiyou.atom.converts.TaskConvert;
 import com.meiyou.atom.converts.UIThreadConvert;
 
@@ -10,6 +11,7 @@ import com.meiyou.atom.converts.UIThreadConvert;
 public final class AtomBuilder {
     public TaskConvert taskConvert;
     public UIThreadConvert uiThreadConvert;
+    public LayoutInflaterConvert layoutInflaterConvert;
 
     public AtomBuilder setTaskConvert(TaskConvert taskConver){
         this.taskConvert = taskConver;
@@ -18,6 +20,11 @@ public final class AtomBuilder {
 
     public AtomBuilder setUIThreadConvert(UIThreadConvert uiThreadConvert){
         this.uiThreadConvert = uiThreadConvert;
+        return this;
+    }
+
+    public AtomBuilder setLayoutInflaterConvert(LayoutInflaterConvert layoutInflaterConvert){
+        this.layoutInflaterConvert = layoutInflaterConvert;
         return this;
     }
 }

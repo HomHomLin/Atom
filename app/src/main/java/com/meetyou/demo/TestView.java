@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
 import com.meiyou.atom.inject.MViewGroup;
+import com.meiyou.atom.managers.LayoutInflaterManager;
 
 /**
  * Created by Linhh on 2017/10/12.

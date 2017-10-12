@@ -68,10 +68,18 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
                         if(name.equals("<init>")){
                             //init
+
+                            mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/LayoutInflaterManager", "getIntance", "()Lcom/meiyou/atom/managers/LayoutInflaterManager;", false);
                             mv.visitVarInsn(ALOAD, 1);
+                            mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/LayoutInflaterManager", "getLayoutInflater", "(Landroid/content/Context;)Landroid/view/LayoutInflater;", false);
                             mv.visitLdcInsn(mClazzNode.value);
                             mv.visitVarInsn(ALOAD, 0);
-                            mv.visitMethodInsn(INVOKESTATIC, "android/view/View", "inflate", "(Landroid/content/Context;ILandroid/view/ViewGroup;)Landroid/view/View;", false);
+                            mv.visitMethodInsn(INVOKEVIRTUAL, "android/view/LayoutInflater", "inflate", "(ILandroid/view/ViewGroup;)Landroid/view/View;", false);
+
+//                            mv.visitVarInsn(ALOAD, 1);
+//                            mv.visitLdcInsn(mClazzNode.value);
+//                            mv.visitVarInsn(ALOAD, 0);
+//                            mv.visitMethodInsn(INVOKESTATIC, "android/view/View", "inflate", "(Landroid/content/Context;ILandroid/view/ViewGroup;)Landroid/view/View;", false);
                         }
                     }
                 };

@@ -1,10 +1,13 @@
 package com.meetyou.demo;
 
+import android.content.Context;
 import android.util.Log;
+import android.view.LayoutInflater;
 
 import com.meiyou.atom.Atom;
 import com.meiyou.atom.AtomBuilder;
 import com.meiyou.atom.AtomTaskNode;
+import com.meiyou.atom.converts.LayoutInflaterConvert;
 import com.meiyou.atom.converts.TaskConvert;
 import com.meiyou.atom.converts.UIThreadConvert;
 
@@ -19,6 +22,11 @@ public class Test {
             public void submitTask(AtomTaskNode node, Runnable runnable) {
                 Log.i("Test-Atom", "Atom is called " + node.taskName);
                 runnable.run();
+            }
+        }).setLayoutInflaterConvert(new LayoutInflaterConvert() {
+            @Override
+            public LayoutInflater getLayoutInflater(Context context) {
+                return LayoutInflater.from(context);
             }
         }).setUIThreadConvert(new UIThreadConvert() {
             @Override
