@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin:'meiyou.mvn.deploy'
 android {
     compileSdkVersion 25
     buildToolsVersion "26.0.0"
