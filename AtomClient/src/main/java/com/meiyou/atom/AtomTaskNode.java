@@ -7,4 +7,5 @@ package com.meiyou.atom;
 public class AtomTaskNode {
     public long delay;
     public String taskName;
+    public String mode = AtomVar.MODE_NEW;
 }

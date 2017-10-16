@@ -26,6 +26,10 @@ public class DescProcessor {
                 node.taskName = strings[i + 1];
                 i = i + 1;
                 continue;
+            }else if(key.trim().equals("mode")){
+                node.mode = strings[i + 1];
+                i = i + 1;
+                continue;
             }
         }
         return node;
