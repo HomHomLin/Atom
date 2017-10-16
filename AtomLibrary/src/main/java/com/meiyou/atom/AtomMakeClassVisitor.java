@@ -56,11 +56,7 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                     }
                 };
                 return methodVisitor;
-            }
-//            else  if(mClazzNode.type == AtomVar.TYPE_FRAGMENT && name.equals("onCreate") && desc.equals("(Landroid/os/Bundle;)V")){
-//
-//            }
-            else if(mClazzNode.type == AtomVar.TYPE_VIEW && name.equals("<init>")){
+            } else if(mClazzNode.type == AtomVar.TYPE_VIEW && name.equals("<init>")){
                 MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
                 methodVisitor = new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, desc) {
                     @Override
@@ -106,6 +102,14 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
 
     @Override
     public void visitEnd() {
+        if(mClazzNode != null && mClazzNode.type == AtomVar.TYPE_FRAGMENT ){
+            MethodVisitor mv = cv.visitMethod(ACC_PROTECTED, "getLayout", "()I", null, null);
+            mv.visitCode();
+            mv.visitLdcInsn(mClazzNode.value);
+            mv.visitInsn(IRETURN);
+            mv.visitMaxs(1, 1);
+            mv.visitEnd();
+        }
         if(mOutClazzName.equals(mClazzName) && mAtomNodes != null) {
             for(AtomNode node : mAtomNodes){
                 MethodVisitor mv = cv.visitMethod(node.mAccess, node.mMethodName, node.mdesc, node.mSignature, node.mExceptions);
