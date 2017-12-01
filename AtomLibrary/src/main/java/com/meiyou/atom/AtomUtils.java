@@ -17,16 +17,58 @@ public class AtomUtils implements Opcodes{
      */
     public static void excuteForAtom(AtomNode node, MethodVisitor mv){
         if(node.mNodeType == AtomVar.TYPE_WORKTHREAD) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/TaskManager", "submitTask", "(Ljava/lang/String;Lcom/meiyou/atom/AtomMethod;Ljava/lang/String;)Ljava/lang/Object;", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/TaskManager", "submitTask", "(Ljava/lang/String;Lcom/meiyou/atom/AtomMethod;Ljava/lang/Class;)Ljava/lang/Object;", false);
         }else if(node.mNodeType == AtomVar.TYPE_UITHREAD){
-            mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/UIThreadManager", "submitTask", "(Ljava/lang/String;Lcom/meiyou/atom/AtomMethod;Ljava/lang/String;)Ljava/lang/Object;", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/UIThreadManager", "submitTask", "(Ljava/lang/String;Lcom/meiyou/atom/AtomMethod;Ljava/lang/Class;)Ljava/lang/Object;", false);
         }else if(node.mNodeType == AtomVar.TYPE_SUPRESSCODE){
-            mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/SupressCodeManager", "submitTask", "(Ljava/lang/String;Lcom/meiyou/atom/AtomMethod;Ljava/lang/String;)Ljava/lang/Object;", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/SupressCodeManager", "submitTask", "(Ljava/lang/String;Lcom/meiyou/atom/AtomMethod;Ljava/lang/Class;)Ljava/lang/Object;", false);
         }
         mv.visitVarInsn(ASTORE, 3);
         mv.visitVarInsn(ALOAD, 3);
         returnResult(mv,node.mReturnType);
 
+    }
+
+    public static void storeClazz(MethodVisitor mv, Type returnType){
+        String typeS = returnType.getDescriptor();
+        if("V".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Void", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        if("Z".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        if("B".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Byte", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        if("C".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Character", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        if("S".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Short", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        if("I".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Integer", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        if("F".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Float", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        if("D".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Double", "TYPE", "Ljava/lang/Class;");
+
+            return;
+        }
+        if("J".equals(typeS)){
+            mv.visitFieldInsn(GETSTATIC, "java/lang/Long", "TYPE", "Ljava/lang/Class;");
+            return;
+        }
+        mv.visitLdcInsn(returnType);
     }
 
     public static void returnResult(MethodVisitor mv, Type returnType){

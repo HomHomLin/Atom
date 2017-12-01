@@ -148,7 +148,9 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                 }
                 mv.visitLdcInsn(annotationNodeDesc);
                 mv.visitVarInsn(ALOAD, 2);
-                mv.visitLdcInsn(node.mReturnType.getDescriptor());
+                //将返回类型的class保存
+                AtomUtils.storeClazz(mv, node.mReturnType);
+//                mv.visitLdcInsn(node.mReturnType);
                 AtomUtils.excuteForAtom(node, mv);
 //                if(node.mNodeType == AtomVar.TYPE_WORKTHREAD) {
 //                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/TaskManager", "submitTask", "(Ljava/lang/String;Ljava/lang/Runnable;)V", false);

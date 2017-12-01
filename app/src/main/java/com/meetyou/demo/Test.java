@@ -21,7 +21,7 @@ public class Test {
     public static void init(){
         Atom.init(new AtomBuilder().setTaskConvert(new TaskConvert() {
             @Override
-            public Object submitTask(AtomTaskNode node, final AtomMethod runnable, String returnType) {
+            public Object submitTask(AtomTaskNode node, final AtomMethod runnable, Class returnType) {
                 Log.i("Test-Atom", "Atom is called " + node.taskName + ";" + returnType);
                //submit (runnable.run())
 
@@ -45,7 +45,7 @@ public class Test {
             }
         }).setSupressCodeConvert(new SupressCodeConvert() {
             @Override
-            public Object submitTask(String info, AtomMethod runnable, String returnType) {
+            public Object submitTask(String info, AtomMethod runnable, Class returnType) {
 //                if(info.equals("Rocket init 4 Product"))
 //                {
 //                    //
@@ -61,7 +61,7 @@ public class Test {
             }
         }).setUIThreadConvert(new UIThreadConvert() {
             @Override
-            public Object submitTask(AtomTaskNode node, AtomMethod runnable, String returnType) {
+            public Object submitTask(AtomTaskNode node, AtomMethod runnable, Class returnType) {
                 Log.i("Test-Atom", "Atom ui is called by ui" + node.taskName + returnType);
                 return runnable.run();
             }

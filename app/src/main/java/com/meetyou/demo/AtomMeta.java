@@ -15,7 +15,14 @@ public class AtomMeta implements AtomMethod{
 
     @Override
     public Object run() {
+        if(activity.getClass() ==  MainActivity.class){
+            return new Object();
+        }
+
+        Class cl = int.class;
+        Class cl2 = boolean.class;
+        Class cl3 = MainActivity.class;
 //        Object o  = activity.t3(null,activity,1);
-        return null;
+        return cl;
     }
 }

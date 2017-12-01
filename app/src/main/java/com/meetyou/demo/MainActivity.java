@@ -42,8 +42,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @WorkThread(delay = 100)
-    public void t3(String test, MainActivity activity, int q){
+    public MainActivity t3(String test, MainActivity activity, int q){
         Log.i("Test-Atom", "test3 is call");
+        return null;
     }
 
     @WorkThread(delay = 100, taskName = "test")

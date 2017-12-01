@@ -8,5 +8,5 @@ import com.meiyou.atom.AtomTaskNode;
  */
 
 public interface SupressCodeConvert {
-    public Object submitTask(String info, AtomMethod runnable,String returnType);
+    public Object submitTask(String info, AtomMethod runnable,Class returnType);
 }

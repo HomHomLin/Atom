@@ -24,7 +24,7 @@ public class UIThreadManager {
      * @param desc 通信数据node
      * @param runnable
      */
-    public Object submitTask(String desc, AtomMethod runnable,String returnType){
+    public Object submitTask(String desc, AtomMethod runnable,Class returnType){
         UIThreadConvert taskConvert = Atom.getAtom().getUIThreadConvert();
         if(taskConvert != null){
             return taskConvert.submitTask(DescProcessor.excuteAtomTask(desc), runnable, returnType);
