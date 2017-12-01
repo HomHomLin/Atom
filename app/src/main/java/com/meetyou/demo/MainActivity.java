@@ -21,19 +21,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Test.init();
-        test2("test",this,1);
+        Object o = test2("test",this,1);
         t3("test",this,1);
         t2("test",this);
         test3("test3");
     }
     public void t1(MainActivity activity, String s, int q){
-        AtomMeta meta = new AtomMeta(this, activity,s,q);
-        TaskManager.getIntance().submitTask("delay;100;taskName;test;", meta);
+//        AtomMeta meta = new AtomMeta(this, activity,s,q);
+//        TaskManager.getIntance().submitTask("delay;100;taskName;test;", meta, s);
+    }
+
+    public Object returnNull(){
+        return false;
     }
 
     @UiThread(delay = 100)
-    public void t2( String s,MainActivity activity){
+    public Object t2( String s,MainActivity activity){
         Log.i("Test-Atom", "t2 is call");
+        return 1;
     }
 
     @WorkThread(delay = 100)
@@ -42,13 +47,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @WorkThread(delay = 100, taskName = "test")
-    public void test2(String test, MainActivity activity, int q){
-        Log.i("Test-Atom", "test2 is call");
+    public Object test2(String test, MainActivity activity, int q){
+        //......
+        return new Object();
     }
 
+//    public void test2n(String test, MainActivity activity, int q){
+//        Log.i("Test-Atom", "test2 is call");
+//        submit(new Runnable(){
+//            @Override
+//            public void run() {
+//                //......
+//                Eventbus.post
+//            }
+//        })
+//    }
+
     @SupressCode("listload load")
-    public void test3(String t){
+    public boolean test3(String t){
         Log.i("Test-Atom", "test3 is call");
+        return false;
+//        return 1;
         /*
         boolean isProduct = ConfigManager.from(activity).isProduct();
         if (!isProduct) {

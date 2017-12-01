@@ -1,5 +1,6 @@
 package com.meiyou.atom.converts;
 
+import com.meiyou.atom.AtomMethod;
 import com.meiyou.atom.AtomTaskNode;
 
 /**
@@ -7,5 +8,5 @@ import com.meiyou.atom.AtomTaskNode;
  */
 
 public interface UIThreadConvert {
-    public void submitTask(AtomTaskNode node, Runnable runnable);
+    public Object submitTask(AtomTaskNode node, AtomMethod runnable, String returnType);
 }

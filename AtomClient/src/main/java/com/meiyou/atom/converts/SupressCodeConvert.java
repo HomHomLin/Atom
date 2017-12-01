@@ -1,5 +1,6 @@
 package com.meiyou.atom.converts;
 
+import com.meiyou.atom.AtomMethod;
 import com.meiyou.atom.AtomTaskNode;
 
 /**
@@ -7,5 +8,5 @@ import com.meiyou.atom.AtomTaskNode;
  */
 
 public interface SupressCodeConvert {
-    public Object submitTask(String info, Runnable runnable);
+    public Object submitTask(String info, AtomMethod runnable,String returnType);
 }

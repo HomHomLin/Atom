@@ -1,6 +1,7 @@
 package com.meiyou.atom.managers;
 
 import com.meiyou.atom.Atom;
+import com.meiyou.atom.AtomMethod;
 import com.meiyou.atom.DescProcessor;
 import com.meiyou.atom.converts.TaskConvert;
 import com.meiyou.atom.converts.UIThreadConvert;
@@ -23,10 +24,11 @@ public class UIThreadManager {
      * @param desc 通信数据node
      * @param runnable
      */
-    public void submitTask(String desc, Runnable runnable){
+    public Object submitTask(String desc, AtomMethod runnable,String returnType){
         UIThreadConvert taskConvert = Atom.getAtom().getUIThreadConvert();
         if(taskConvert != null){
-            taskConvert.submitTask(DescProcessor.excuteAtomTask(desc), runnable);
+            return taskConvert.submitTask(DescProcessor.excuteAtomTask(desc), runnable, returnType);
         }
+        return null;
     }
 }

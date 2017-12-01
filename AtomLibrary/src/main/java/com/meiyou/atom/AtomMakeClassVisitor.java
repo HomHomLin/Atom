@@ -148,6 +148,7 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                 }
                 mv.visitLdcInsn(annotationNodeDesc);
                 mv.visitVarInsn(ALOAD, 2);
+                mv.visitLdcInsn(node.mReturnType.getDescriptor());
                 AtomUtils.excuteForAtom(node, mv);
 //                if(node.mNodeType == AtomVar.TYPE_WORKTHREAD) {
 //                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/TaskManager", "submitTask", "(Ljava/lang/String;Ljava/lang/Runnable;)V", false);
@@ -155,8 +156,8 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
 //                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/UIThreadManager", "submitTask", "(Ljava/lang/String;Ljava/lang/Runnable;)V", false);
 //                }
 
-                mv.visitInsn(RETURN);
-                mv.visitMaxs(1 + (node.mTypes == null ? 0 : node.mTypes.size()), 1 + (node.mTypes == null ? 0 : node.mTypes.size()));
+//                mv.visitInsn(RETURN);
+                mv.visitMaxs(1 + (node.mTypes == null ? 0 : node.mTypes.size()), 2 + (node.mTypes == null ? 0 : node.mTypes.size()));
                 mv.visitEnd();
             }
         }

@@ -24,7 +24,7 @@ public class AtomMetaWriter implements Opcodes {
         MethodVisitor mv;
         AnnotationVisitor av0;
 
-        cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, "com/meiyou/atom/metas/AtomMeta" + index, null, "java/lang/Object", new String[] { "java/lang/Runnable" });
+        cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, "com/meiyou/atom/metas/AtomMeta" + index, null, "java/lang/Object", new String[] { "com/meiyou/atom/AtomMethod" });
 
         {
             fv = cw.visitField(ACC_PRIVATE, "varObj", "L" + node.mClazz + ";", null, null);
@@ -66,13 +66,14 @@ public class AtomMetaWriter implements Opcodes {
             mv.visitEnd();
         }
         {
-            mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
+            mv = cw.visitMethod(ACC_PUBLIC, "run", "()Ljava/lang/Object;", null, null);
             mv.visitCode();
             //do somethings...
             //读取源对象
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, "com/meiyou/atom/metas/AtomMeta" + index, "varObj", "L" + node.mClazz + ";");
 
+            //参数
             List<Type> types = node.mTypes;
             if(types != null) {
                 for (int i = 0; i < types.size(); i ++){
@@ -81,13 +82,28 @@ public class AtomMetaWriter implements Opcodes {
                 }
             }
             mv.visitMethodInsn(INVOKEVIRTUAL, node.mClazz, "atomOrgin_" + node.mMethodName, node.mdesc, false);
+//            mv.visitInsn(ARETURN);
 
-            mv.visitInsn(RETURN);
-            mv.visitMaxs(1 + (types == null ? 0 : types.size()), 1);
+//            int returnCode = AtomUtils.getReturnTypeCode(node.mReturnType.getDescriptor());
+            if("V".equals(node.mReturnType.getDescriptor())){
+                mv.visitInsn(ACONST_NULL);
+                mv.visitInsn(ARETURN);
+                mv.visitMaxs(1 + (types == null ? 0 : types.size()), 1);
+            }else{
+                //返回值请转成object
+                AtomUtils.returnTypeFormat(mv, node.mReturnType.getDescriptor());
+                mv.visitVarInsn(ASTORE, 1);
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitInsn(ARETURN);
+                mv.visitMaxs(1 + (types == null ? 0 : types.size()), 2);
+            }
+
             mv.visitEnd();
         }
         cw.visitEnd();
 
         return cw.toByteArray();
     }
+
+
 }

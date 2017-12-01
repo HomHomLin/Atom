@@ -145,6 +145,7 @@ public class AtomClassVisitor extends ClassVisitor {
                     atomNode.mExceptions = exceptions;
                     atomNode.mAnnotation = mAnnotationNode;
                     atomNode.mIndex = mIndex;
+                    atomNode.mReturnType = Type.getReturnType(methodDesc);
                     if(mAtomUIThreadInject){
                         atomNode.mNodeType = AtomVar.TYPE_UITHREAD;
                     }else if(mAtomWorkThreadInject){

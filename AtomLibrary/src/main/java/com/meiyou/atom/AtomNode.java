@@ -22,6 +22,7 @@ public class AtomNode {
     public AnnotationNode mAnnotation;
     public int mIndex = -1;
     public int mNodeType = -1;
+    public Type mReturnType;
 
     public String mTypeDescrible;
 

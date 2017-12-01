@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 
 import com.meiyou.atom.Atom;
 import com.meiyou.atom.AtomBuilder;
+import com.meiyou.atom.AtomMethod;
 import com.meiyou.atom.AtomTaskNode;
 import com.meiyou.atom.converts.LayoutInflaterConvert;
 import com.meiyou.atom.converts.SupressCodeConvert;
@@ -20,9 +21,22 @@ public class Test {
     public static void init(){
         Atom.init(new AtomBuilder().setTaskConvert(new TaskConvert() {
             @Override
-            public void submitTask(AtomTaskNode node, Runnable runnable) {
-                Log.i("Test-Atom", "Atom is called " + node.taskName);
-                runnable.run();
+            public Object submitTask(AtomTaskNode node, final AtomMethod runnable, String returnType) {
+                Log.i("Test-Atom", "Atom is called " + node.taskName + ";" + returnType);
+               //submit (runnable.run())
+
+//                submit(new Runnable(){
+//                    @Override
+//                    public void run() {
+//                        //......
+//                        eventbus.runnable.run();
+//                    }
+//                })
+                long time = System.currentTimeMillis();
+                Object o = runnable.run();
+                Log.d("atom cost time", "" + (System.currentTimeMillis() - time));
+                return o;
+//                return null;
             }
         }).setLayoutInflaterConvert(new LayoutInflaterConvert() {
             @Override
@@ -31,23 +45,25 @@ public class Test {
             }
         }).setSupressCodeConvert(new SupressCodeConvert() {
             @Override
-            public void submitTask(String info, Runnable runnable) {
-                if(info.equals("listload load"))
-                {
-                    //
-                    runnable.run();
-                    //
-                    return;
-                }else{
-                    ///
-                }
-                Log.i("Test-Atom", "Atom supresscode is called : " + info);
+            public Object submitTask(String info, AtomMethod runnable, String returnType) {
+//                if(info.equals("Rocket init 4 Product"))
+//                {
+//                    //
+//                    runnable.run();
+//                    //
+////                    return;
+//                }else{
+//                    ///
+//                }
+                Log.i("Test-Atom", "Atom supresscode is called : " + info + returnType);
+//                Object object = runnable.run();
+                return runnable.run();
             }
         }).setUIThreadConvert(new UIThreadConvert() {
             @Override
-            public void submitTask(AtomTaskNode node, Runnable runnable) {
-                Log.i("Test-Atom", "Atom ui is called by ui" + node.taskName);
-                runnable.run();
+            public Object submitTask(AtomTaskNode node, AtomMethod runnable, String returnType) {
+                Log.i("Test-Atom", "Atom ui is called by ui" + node.taskName + returnType);
+                return runnable.run();
             }
         }));
     }
