@@ -8,6 +8,7 @@ import com.meiyou.atom.Atom;
 import com.meiyou.atom.AtomBuilder;
 import com.meiyou.atom.AtomTaskNode;
 import com.meiyou.atom.converts.LayoutInflaterConvert;
+import com.meiyou.atom.converts.SupressCodeConvert;
 import com.meiyou.atom.converts.TaskConvert;
 import com.meiyou.atom.converts.UIThreadConvert;
 
@@ -27,6 +28,20 @@ public class Test {
             @Override
             public LayoutInflater getLayoutInflater(Context context) {
                 return LayoutInflater.from(context);
+            }
+        }).setSupressCodeConvert(new SupressCodeConvert() {
+            @Override
+            public void submitTask(String info, Runnable runnable) {
+                if(info.equals("listload load"))
+                {
+                    //
+                    runnable.run();
+                    //
+                    return;
+                }else{
+                    ///
+                }
+                Log.i("Test-Atom", "Atom supresscode is called : " + info);
             }
         }).setUIThreadConvert(new UIThreadConvert() {
             @Override

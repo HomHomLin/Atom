@@ -1,6 +1,7 @@
 package com.meiyou.atom;
 
 import com.meiyou.atom.converts.LayoutInflaterConvert;
+import com.meiyou.atom.converts.SupressCodeConvert;
 import com.meiyou.atom.converts.TaskConvert;
 import com.meiyou.atom.converts.UIThreadConvert;
 
@@ -11,6 +12,7 @@ import com.meiyou.atom.converts.UIThreadConvert;
 public class Atom {
     private TaskConvert taskConvert;
     private UIThreadConvert uiThreadConvert;
+    private SupressCodeConvert supressCodeConvert;
     private LayoutInflaterConvert layoutInflaterConvert;
 
     static class Holder{
@@ -26,6 +28,7 @@ public class Atom {
         atom.taskConvert = builder.taskConvert;
         atom.uiThreadConvert = builder.uiThreadConvert;
         atom.layoutInflaterConvert = builder.layoutInflaterConvert;
+        atom.supressCodeConvert = builder.supressCodeConvert;
     }
 
     public TaskConvert getTaskConvert(){
@@ -34,6 +37,10 @@ public class Atom {
 
     public UIThreadConvert getUIThreadConvert(){
         return uiThreadConvert;
+    }
+
+    public SupressCodeConvert getSupressCodeConvert(){
+        return supressCodeConvert;
     }
 
     public LayoutInflaterConvert getLayoutInflaterConvert(){

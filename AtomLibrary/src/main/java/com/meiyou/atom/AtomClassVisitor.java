@@ -4,6 +4,7 @@ package com.meiyou.atom;
 import com.meiyou.atom.inject.MActivity;
 import com.meiyou.atom.inject.MFragment;
 import com.meiyou.atom.inject.MViewGroup;
+import com.meiyou.atom.inject.SupressCode;
 import com.meiyou.atom.inject.UiThread;
 import com.meiyou.atom.inject.WorkThread;
 
@@ -70,6 +71,7 @@ public class AtomClassVisitor extends ClassVisitor {
 
             public boolean mAtomWorkThreadInject = false;
             public boolean mAtomUIThreadInject = false;
+            public boolean mAtomSupressCodeInject = false;
             public AnnotationNode mAnnotationNode;
 
             /**
@@ -88,6 +90,11 @@ public class AtomClassVisitor extends ClassVisitor {
                 }else if (Type.getDescriptor(UiThread.class).equals(desc)) {
                     mAnnotationNode = new AnnotationNode(desc);
                     mAtomUIThreadInject = true;
+                    mIndex ++;
+                    return mAnnotationNode;
+                }else if (Type.getDescriptor(SupressCode.class).equals(desc)){
+                    mAnnotationNode = new AnnotationNode(desc);
+                    mAtomSupressCodeInject = true;
                     mIndex ++;
                     return mAnnotationNode;
                 }
@@ -116,7 +123,7 @@ public class AtomClassVisitor extends ClassVisitor {
             @Override
             public void visitCode() {
                 super.visitCode();
-                if(mAtomWorkThreadInject || mAtomUIThreadInject){
+                if(mAtomWorkThreadInject || mAtomUIThreadInject || mAtomSupressCodeInject){
                     if(mAtomNodes == null){
                         mAtomNodes = new ArrayList<>();
                     }
@@ -138,7 +145,14 @@ public class AtomClassVisitor extends ClassVisitor {
                     atomNode.mExceptions = exceptions;
                     atomNode.mAnnotation = mAnnotationNode;
                     atomNode.mIndex = mIndex;
-                    atomNode.mNodeType = mAtomUIThreadInject ? AtomVar.TYPE_UITHREAD : AtomVar.TYPE_WORKTHREAD;
+                    if(mAtomUIThreadInject){
+                        atomNode.mNodeType = AtomVar.TYPE_UITHREAD;
+                    }else if(mAtomWorkThreadInject){
+                        atomNode.mNodeType = AtomVar.TYPE_WORKTHREAD;
+                    }else if(mAtomSupressCodeInject){
+                        atomNode.mNodeType = AtomVar.TYPE_SUPRESSCODE;
+                    }
+//                    atomNode.mNodeType = mAtomUIThreadInject ? AtomVar.TYPE_UITHREAD : AtomVar.TYPE_WORKTHREAD;
                     mAtomNodes.add(atomNode);
                 }
             }
