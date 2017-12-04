@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.meiyou.atom.AtomTaskNode;
 import com.meiyou.atom.inject.MActivity;
+import com.meiyou.atom.inject.MTodo;
 import com.meiyou.atom.inject.SupressCode;
 import com.meiyou.atom.inject.UiThread;
 import com.meiyou.atom.inject.WorkThread;
@@ -31,10 +32,12 @@ public class MainActivity extends AppCompatActivity {
 //        TaskManager.getIntance().submitTask("delay;100;taskName;test;", meta, s);
     }
 
+    @MTodo(expried = false, msg = "请修复这个地方，谢谢")
     public Object returnNull(){
         return false;
     }
 
+    @MTodo(expried = false, msg = "这个警告可以")
     @UiThread(delay = 100)
     public Object t2( String s,MainActivity activity){
         Log.i("Test-Atom", "t2 is call");

@@ -3,6 +3,7 @@ package com.meiyou.atom;
 
 import com.meiyou.atom.inject.MActivity;
 import com.meiyou.atom.inject.MFragment;
+import com.meiyou.atom.inject.MTodo;
 import com.meiyou.atom.inject.MViewGroup;
 import com.meiyou.atom.inject.SupressCode;
 import com.meiyou.atom.inject.UiThread;
@@ -29,6 +30,7 @@ public class AtomClassVisitor extends ClassVisitor {
     public List<AtomNode> mAtomNodes;
     public int mIndex;
     public AnnotationNode mClazzNode;
+    public List<AnnotationNode> mTodoNode;
     public int mClazzType = -1;
 
     public AtomClassVisitor(int api, ClassVisitor cv, int index) {
@@ -97,6 +99,13 @@ public class AtomClassVisitor extends ClassVisitor {
                     mAtomSupressCodeInject = true;
                     mIndex ++;
                     return mAnnotationNode;
+                } else if (Type.getDescriptor(MTodo.class).equals(desc)){
+                    if(mTodoNode == null){
+                        mTodoNode = new ArrayList<>();
+                    }
+                    AnnotationNode todoNode = new AnnotationNode(desc);
+                    mTodoNode.add(todoNode);
+                    return todoNode;
                 }
                 return super.visitAnnotation(desc, visible);
             }

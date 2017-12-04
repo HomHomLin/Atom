@@ -11,4 +11,5 @@ public class AtomVar {
     public static int TYPE_FRAGMENT = 3;
     public static int TYPE_VIEW = 4;
     public static int TYPE_SUPRESSCODE = 5;
+    public static int TYPE_TODO = 6;
 }

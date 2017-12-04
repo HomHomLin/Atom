@@ -9,6 +9,8 @@ import com.meiyou.atom.AtomClazzNode
 import com.meiyou.atom.AtomMakeClassVisitor
 import com.meiyou.atom.AtomMetaWriter
 import com.meiyou.atom.AtomNode
+import com.meiyou.atom.AtomTodoNode
+import com.meiyou.atom.AtomVar
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
@@ -91,6 +93,25 @@ public class PluginImpl extends Transform implements Plugin<Project> {
                                     ClassWriter classWriter = new ClassWriter(classReader,ClassWriter.COMPUTE_MAXS)
                                     AtomClassVisitor cv = new AtomClassVisitor(Opcodes.ASM5,classWriter, mIndex)
                                     classReader.accept(cv, EXPAND_FRAMES)
+                                    if(cv.mTodoNode != null){
+                                        for(AnnotationNode node: cv.mTodoNode){
+                                            if(node != null && node.values != null){
+                                                AtomTodoNode todonode = AtomClazzMaker.makeTodoClazzNode(AtomVar.TYPE_TODO, node.values)
+                                                println "*************************************************"
+                                                println "注：Atom 找到一个 TODO , 你应该把它修复， 位置： " + file.getAbsolutePath()
+                                                println "注：编写 TODO 的人给你留下了一个提示-->" + todonode.msg
+                                                if(!todonode.expried) {
+                                                    println "注：这是一个可延迟处理的TODO，你可以后续再来处理，不会影响到编译"
+                                                }
+                                                println "*************************************************"
+
+                                                if(todonode.expried) {
+                                                    throw new Exception("注：这个TODO要求你必须修复，当你修复后，编译才会继续")
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     if(cv.mAtomNodes != null){
                                         mIndex = cv.mIndex
                                         mAtomNodeList.addAll(cv.mAtomNodes)
