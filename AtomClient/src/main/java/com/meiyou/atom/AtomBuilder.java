@@ -1,5 +1,6 @@
 package com.meiyou.atom;
 
+import com.meiyou.atom.converts.ForeachConvert;
 import com.meiyou.atom.converts.LayoutInflaterConvert;
 import com.meiyou.atom.converts.SupressCodeConvert;
 import com.meiyou.atom.converts.TaskConvert;
@@ -14,9 +15,15 @@ public final class AtomBuilder {
     public UIThreadConvert uiThreadConvert;
     public LayoutInflaterConvert layoutInflaterConvert;
     public SupressCodeConvert supressCodeConvert;
+    public ForeachConvert foreachConvert;
 
     public AtomBuilder setTaskConvert(TaskConvert taskConver){
         this.taskConvert = taskConver;
+        return this;
+    }
+
+    public AtomBuilder setForeachConvert(ForeachConvert foreachConvert){
+        this.foreachConvert = foreachConvert;
         return this;
     }
 

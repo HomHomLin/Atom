@@ -1,5 +1,6 @@
 package com.meiyou.atom;
 
+import com.meiyou.atom.inject.ForEachCode;
 import com.meiyou.atom.inject.WorkThread;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -12,6 +13,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Linhh on 2017/10/10.
@@ -22,18 +24,36 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
     private String mOutClazzName;
     public List<AtomNode> mAtomNodes;
     public AtomClazzNode mClazzNode;
+    public boolean mAtomForeachInject = false;//如果要开启专版全打印，请在这里开启true
+    public Map<String, AnnotationNode> mForeachNode;
 
-    public AtomMakeClassVisitor(int api, ClassVisitor cv,String outClazz, List<AtomNode> atomNodes, AtomClazzNode node) {
+    public AtomMakeClassVisitor(int api, ClassVisitor cv,String outClazz, List<AtomNode> atomNodes, AtomClazzNode node, Map<String, AnnotationNode> foreachNode) {
         super(api, cv);
         mOutClazzName = outClazz;
         mAtomNodes = atomNodes;
         mClazzNode = node;
+        mForeachNode = foreachNode;
     }
+
+
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         super.visit(version, access, name, signature, superName, interfaces);
         mClazzName = name;
+    }
+
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
+        super.visitInnerClass(name, outerName, innerName, access);
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        if(Type.getDescriptor(ForEachCode.class).equals(desc)){
+            mAtomForeachInject = true;
+        }
+        return super.visitAnnotation(desc, visible);
     }
 
     @Override
@@ -55,7 +75,7 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                         }
                     }
                 };
-                return methodVisitor;
+                return AtomUtils.excuteForEachCode(mForeachNode, mAtomForeachInject,methodVisitor,mClazzName, access,name,desc, signature, exceptions);
             } else if(mClazzNode.type == AtomVar.TYPE_VIEW && name.equals("<init>")){
                 MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
                 methodVisitor = new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, desc) {
@@ -79,21 +99,30 @@ public class AtomMakeClassVisitor extends ClassVisitor implements Opcodes{
                         }
                     }
                 };
-                return methodVisitor;
+                return AtomUtils.excuteForEachCode(mForeachNode, mAtomForeachInject ,methodVisitor,mClazzName, access,name,desc, signature, exceptions);
+
             }
         }
         if(name.startsWith("atomOrgin_") || mAtomNodes == null){
-            return cv.visitMethod(access, name, desc, signature, exceptions);
+//            return cv.visitMethod(access, name, desc, signature, exceptions);
+            return AtomUtils.excuteForEachCode(mForeachNode, mAtomForeachInject, cv.visitMethod(access, name, desc, signature, exceptions), mClazzName,access,name,desc, signature, exceptions);
+
         }
         if(!mOutClazzName.equals(mClazzName)){
-            return cv.visitMethod(access, name, desc, signature, exceptions);
+            return AtomUtils.excuteForEachCode(mForeachNode, mAtomForeachInject, cv.visitMethod(access, name, desc, signature, exceptions), mClazzName,access,name,desc, signature, exceptions);
+
+//            return cv.visitMethod(access, name, desc, signature, exceptions);
         }
         for(AtomNode node : mAtomNodes){
             if(node.mdesc.equals(desc) && node.mMethodName.equals(name)){
-                return cv.visitMethod(access, "atomOrgin_" + name, desc, signature, exceptions);
+//                return cv.visitMethod(access, "atomOrgin_" + name, desc, signature, exceptions);
+                return AtomUtils.excuteForEachCode(mForeachNode, mAtomForeachInject, cv.visitMethod(access, "atomOrgin_" + name, desc, signature, exceptions),mClazzName, access,name,desc, signature, exceptions);
+
             }
         }
-        return cv.visitMethod(access, name, desc, signature, exceptions);
+        return AtomUtils.excuteForEachCode(mForeachNode, mAtomForeachInject, cv.visitMethod(access, name, desc, signature, exceptions),mClazzName, access,name,desc, signature, exceptions);
+
+//        return cv.visitMethod(access, name, desc, signature, exceptions);
 
     }
 

@@ -10,7 +10,7 @@ import com.meiyou.atom.managers.LayoutInflaterManager;
 /**
  * Created by Linhh on 2017/10/12.
  */
-@MViewGroup(R.layout.activity_main)
+//@MViewGroup(R.layout.activity_main)
 public class TestView extends RelativeLayout{
     public TestView(Context context) {
         super(context);

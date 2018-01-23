@@ -1,6 +1,7 @@
 package com.meiyou.atom;
 
 
+import com.meiyou.atom.inject.ForEachCode;
 import com.meiyou.atom.inject.MActivity;
 import com.meiyou.atom.inject.MFragment;
 import com.meiyou.atom.inject.MTodo;
@@ -19,7 +20,9 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.tree.AnnotationNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Linhh on 17/6/8.
@@ -31,6 +34,7 @@ public class AtomClassVisitor extends ClassVisitor {
     public int mIndex;
     public AnnotationNode mClazzNode;
     public List<AnnotationNode> mTodoNode;
+    public Map<String, AnnotationNode> mForeachNode;
     public int mClazzType = -1;
 
     public AtomClassVisitor(int api, ClassVisitor cv, int index) {
@@ -58,18 +62,25 @@ public class AtomClassVisitor extends ClassVisitor {
             mClazzNode = new AnnotationNode(desc);
             mClazzType = AtomVar.TYPE_VIEW;
             return mClazzNode;
+        }else if (Type.getDescriptor(ForEachCode.class).equals(desc)){
+            if(mForeachNode == null){
+                mForeachNode = new HashMap<>();
+            }
+            AnnotationNode todoNode = new AnnotationNode(desc);
+            mForeachNode.put(mClazzName, todoNode);
+            return todoNode;
         }
         return super.visitAnnotation(desc, visible);
     }
 
     @Override
-    public MethodVisitor visitMethod(int access, String name, String desc, String signature,
+    public MethodVisitor visitMethod(int access, String name, String mDesc, String signature,
                                      String[] exceptions) {
         if(name.startsWith("atomOrgin_")){
-            return cv.visitMethod(access, name, desc, signature, exceptions);
+            return cv.visitMethod(access, name, mDesc, signature, exceptions);
         }
-        MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
-        methodVisitor = new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, desc) {
+        MethodVisitor methodVisitor = cv.visitMethod(access, name, mDesc, signature, exceptions);
+        methodVisitor = new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, mDesc) {
 
             public boolean mAtomWorkThreadInject = false;
             public boolean mAtomUIThreadInject = false;
@@ -106,6 +117,13 @@ public class AtomClassVisitor extends ClassVisitor {
                     AnnotationNode todoNode = new AnnotationNode(desc);
                     mTodoNode.add(todoNode);
                     return todoNode;
+                }else if (Type.getDescriptor(ForEachCode.class).equals(desc)){
+                    if(mForeachNode == null){
+                        mForeachNode = new HashMap<>();
+                    }
+                    AnnotationNode todoNode = new AnnotationNode(desc);
+                    mForeachNode.put(name + mDesc, todoNode);
+                    return todoNode;
                 }
                 return super.visitAnnotation(desc, visible);
             }
@@ -137,7 +155,7 @@ public class AtomClassVisitor extends ClassVisitor {
                         mAtomNodes = new ArrayList<>();
                     }
                     List<Type> paramsTypeClass = new ArrayList();
-                    Type[] argsType = Type.getArgumentTypes(desc);
+                    Type[] argsType = Type.getArgumentTypes(mDesc);
                     String typeDescrible = "";
                     for (Type type : argsType) {
                         paramsTypeClass.add(type);
@@ -148,7 +166,7 @@ public class AtomClassVisitor extends ClassVisitor {
                     atomNode.mTypes = paramsTypeClass;
                     atomNode.mTypeDescrible = typeDescrible;
                     atomNode.mMethodName = name;
-                    atomNode.mdesc = desc;
+                    atomNode.mdesc = mDesc;
                     atomNode.mAccess = access;
                     atomNode.mSignature = signature;
                     atomNode.mExceptions = exceptions;

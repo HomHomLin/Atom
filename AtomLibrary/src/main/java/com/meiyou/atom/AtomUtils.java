@@ -1,14 +1,164 @@
 package com.meiyou.atom;
 
+import com.meiyou.atom.inject.ForEachCode;
+
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.AdviceAdapter;
+import org.objectweb.asm.tree.AnnotationNode;
+
+import java.util.Map;
 
 /**
+ * 初始化的类必须放置在com.meiyou.atom下,避免代码织入误伤
  * Created by Linhh on 2017/11/30.
  */
 
 public class AtomUtils implements Opcodes{
+
+    /**
+     * 获得注解内容
+     * @param key
+     * @return
+     */
+    public static String getDescByForeach(Map<String, AnnotationNode> nodes, String key){
+        try {
+            if (nodes != null) {
+                AnnotationNode node = nodes.get(key);
+                if (node != null && node.values != null) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(node.values.get(1).toString());
+//                for(Object o : node.values){
+//                    stringBuilder.append(o.toString());
+//                }
+                    return stringBuilder.toString();
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static MethodVisitor excuteForEachCode(Map<String, AnnotationNode> nodes, final boolean enabled,  MethodVisitor methodVisitor, String clazz, int access, String mName, String mDesc, String signature, String[] exceptions){
+        MethodVisitor newmethod = new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, mName, mDesc) {
+            boolean mAtomForeachInject = false;
+            @Override
+            public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+                if(Type.getDescriptor(ForEachCode.class).equals(desc)){
+                    mAtomForeachInject = true;
+                }
+                return super.visitAnnotation(desc, visible);
+            }
+
+            @Override
+            public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+                if((mAtomForeachInject || enabled) && !clazz.contains("com/meiyou/atom")
+                        && !owner.contains("com/meiyou/atom")){
+                    String m = getDescByForeach(nodes, mName + mDesc);
+                    if(m == null){
+                        m = getDescByForeach(nodes, clazz);
+                    }
+                    if(m == null){
+                        m = name;
+                    }
+                    mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/ForeachCodeManager", "getIntance", "()Lcom/meiyou/atom/managers/ForeachCodeManager;", false);
+                    mv.visitLdcInsn(m);
+                    mv.visitLdcInsn(owner.replaceAll("/","."));
+                    mv.visitLdcInsn(clazz.replaceAll("/","."));
+                    mv.visitLdcInsn(name);
+                    mv.visitLdcInsn(getJavaArgumentDesc(desc));
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/ForeachCodeManager", "onForeachEnter", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+                }
+                super.visitMethodInsn(opcode, owner, name, desc, itf);
+                if((mAtomForeachInject || enabled) &&
+                        !clazz.contains("com/meiyou/atom") &&
+                        !owner.contains("com/meiyou/atom")){
+                    String m = getDescByForeach(nodes, mName + mDesc);
+                    if(m == null){
+                        m = getDescByForeach(nodes, clazz);
+                    }
+                    if(m == null){
+                        m = name;
+                    }
+                    mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/ForeachCodeManager", "getIntance", "()Lcom/meiyou/atom/managers/ForeachCodeManager;", false);
+                    mv.visitLdcInsn(m);
+                    mv.visitLdcInsn(owner.replaceAll("/","."));
+                    mv.visitLdcInsn(clazz.replaceAll("/","."));
+                    mv.visitLdcInsn(name);
+                    mv.visitLdcInsn(getJavaArgumentDesc(desc));
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/ForeachCodeManager", "onForeachEnd", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+                }
+            }
+
+            @Override
+            public void visitEnd() {
+
+                super.visitEnd();
+            }
+
+            @Override
+            protected void onMethodExit(int opcode) {
+                super.onMethodExit(opcode);
+                if((mAtomForeachInject || enabled) && !clazz.contains("com/meiyou/atom")){
+                    String m = getDescByForeach(nodes, mName + mDesc);
+                    if(m == null){
+                        m = getDescByForeach(nodes, clazz);
+                    }
+                    if(m == null){
+                        m = mName;
+                    }
+                    mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/ForeachCodeManager", "getIntance", "()Lcom/meiyou/atom/managers/ForeachCodeManager;", false);
+                    mv.visitLdcInsn(m);
+                    mv.visitLdcInsn(clazz.replaceAll("/","."));
+                    mv.visitLdcInsn(clazz.replaceAll("/","."));
+                    mv.visitLdcInsn(mName);
+                    mv.visitLdcInsn(getJavaArgumentDesc(mDesc));
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/ForeachCodeManager", "onForeachPush", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+                }
+            }
+
+
+            @Override
+            public void visitCode() {
+                if((mAtomForeachInject || enabled) && !clazz.contains("com/meiyou/atom")){
+                    String m = getDescByForeach(nodes, mName + mDesc);
+                    if(m == null){
+                        m = getDescByForeach(nodes, clazz);
+                    }
+                    if(m == null){
+                        m = mName;
+                    }
+                    mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/ForeachCodeManager", "getIntance", "()Lcom/meiyou/atom/managers/ForeachCodeManager;", false);
+                    mv.visitLdcInsn(m);
+                    mv.visitLdcInsn(clazz.replaceAll("/","."));
+                    mv.visitLdcInsn(clazz.replaceAll("/","."));
+                    mv.visitLdcInsn(mName);
+                    mv.visitLdcInsn(getJavaArgumentDesc(mDesc));
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "com/meiyou/atom/managers/ForeachCodeManager", "onForeachPoll", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+                }
+                super.visitCode();
+            }
+        };
+        return newmethod;
+    }
+
+    public static String getJavaArgumentDesc(String desc){
+        StringBuilder javaDesc = new StringBuilder();
+        Type[] argsType = Type.getArgumentTypes(desc);
+        for (int i = 0 ; i < argsType.length; i++) {
+            javaDesc.append(getJavaNormalType(argsType[i].getDescriptor()));
+            if(i + 1 != argsType.length) {
+                javaDesc.append(",");
+            }
+        }
+        javaDesc.append(";");
+        Type returnType = Type.getReturnType(desc);
+        javaDesc.append(getJavaNormalType(returnType.getDescriptor()));
+        return javaDesc.toString();
+    }
 
     /**
      * 执行对应的自动化方法
@@ -196,6 +346,76 @@ public class AtomUtils implements Opcodes{
         }else if(node.mNodeType == AtomVar.TYPE_SUPRESSCODE) {
             mv.visitMethodInsn(INVOKESTATIC, "com/meiyou/atom/managers/SupressCodeManager", "getIntance", "()Lcom/meiyou/atom/managers/SupressCodeManager;", false);
         }
+    }
+
+    public static String getJavaNormalType(String typeS){
+        boolean squeen = false;
+        if(typeS.startsWith("[")){
+            //说明是数组
+            squeen = true;
+            typeS = typeS.substring(0, typeS.length());
+        }
+        if("V".equals(typeS)){
+            if(squeen){
+                return "void[]";
+            }
+            return "void";
+        }
+        if("Z".equals(typeS)){
+            if(squeen){
+                return "boolean[]";
+            }
+            return "boolean";
+        }
+        if("B".equals(typeS)){
+            if(squeen){
+                return "byte[]";
+            }
+            return "byte";
+        }
+        if("C".equals(typeS)){
+            if(squeen){
+                return "char[]";
+            }
+            return "char";
+        }
+        if("S".equals(typeS)){
+            if(squeen){
+                return "short[]";
+            }
+            return "short";
+        }
+        if("I".equals(typeS)){
+            if(squeen){
+                return "int[]";
+            }
+            return "int";
+        }
+        if("F".equals(typeS)){
+            if(squeen){
+                return "float[]";
+            }
+            return "float";
+        }
+        if("D".equals(typeS)){
+            if(squeen){
+                return "double[]";
+            }
+            return "double";
+        }
+        if("J".equals(typeS)){
+            if(squeen){
+                return "long[]";
+            }
+            return "long";
+        }
+        if(typeS.startsWith("L")){
+            typeS = typeS.substring(1, typeS.length()).replaceAll("/", ".").replaceAll(";","");
+        }
+        if(squeen){
+            return typeS + "[]";
+        }
+        return typeS;
     }
 
     public static int getReturnTypeCode(String typeS){

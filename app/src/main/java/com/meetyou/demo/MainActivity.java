@@ -3,14 +3,16 @@ package com.meetyou.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
-import com.meiyou.atom.AtomTaskNode;
+import com.meiyou.atom.Test;
+import com.meiyou.atom.inject.ForEachCode;
 import com.meiyou.atom.inject.MActivity;
 import com.meiyou.atom.inject.MTodo;
 import com.meiyou.atom.inject.SupressCode;
 import com.meiyou.atom.inject.UiThread;
 import com.meiyou.atom.inject.WorkThread;
-import com.meiyou.atom.managers.TaskManager;
+
 
 @MActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity {
@@ -18,19 +20,39 @@ public class MainActivity extends AppCompatActivity {
     public static final String DEBUG = "debug";
     public static final String YUNQI = "yunqi";
 
+    @ForEachCode
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        findViewById(R.id.activity_main).setOnClickListener(new View.OnClickListener() {
+            @ForEachCode
+            @Override
+            public void onClick(View v) {
+                t1(MainActivity.this,"sssss", 111);
+            }
+        });
         Test.init();
         Object o = test2("test",this,1);
         t3("test",this,1);
         t2("test",this);
         test3("test3");
     }
+
+    @ForEachCode("METHOD_TEST")
     public void t1(MainActivity activity, String s, int q){
-//        AtomMeta meta = new AtomMeta(this, activity,s,q);
-//        TaskManager.getIntance().submitTask("delay;100;taskName;test;", meta, s);
+        //
+        test3("ttte");
+        int i = 0;
+        if(getI() == 0) {
+            test2("tttt", this, 11);
+        }
+        t2("ssss",this);
     }
+
+    public int getI(){
+        return 1;
+    }
+
 
     @MTodo(expried = false, msg = "请修复这个地方，谢谢")
     public Object returnNull(){

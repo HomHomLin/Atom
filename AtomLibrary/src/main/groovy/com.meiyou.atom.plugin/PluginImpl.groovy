@@ -3,6 +3,7 @@ package com.meiyou.atom.plugin
 import com.android.build.api.transform.*
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
+import com.google.common.collect.Sets
 import com.meiyou.atom.AtomClassVisitor
 import com.meiyou.atom.AtomClazzMaker
 import com.meiyou.atom.AtomClazzNode
@@ -56,7 +57,24 @@ public class PluginImpl extends Transform implements Plugin<Project> {
 
     @Override
     public Set<QualifiedContent.Scope> getScopes() {
-        return TransformManager.SCOPE_FULL_PROJECT;
+//        return TransformManager.SCOPE_FULL_PROJECT;
+        def name = QualifiedContent.Scope.PROJECT_LOCAL_DEPS.name()
+        def deprecated = QualifiedContent.Scope.PROJECT_LOCAL_DEPS.getClass()
+                .getField(name).getAnnotation(Deprecated.class)
+
+        if (deprecated == null) {
+//            println "cannot find QualifiedContent.Scope.PROJECT_LOCAL_DEPS Deprecated.class "
+            return Sets.immutableEnumSet(QualifiedContent.Scope.PROJECT
+                    , QualifiedContent.Scope.PROJECT_LOCAL_DEPS
+                    , QualifiedContent.Scope.EXTERNAL_LIBRARIES
+                    , QualifiedContent.Scope.SUB_PROJECTS
+                    , QualifiedContent.Scope.SUB_PROJECTS_LOCAL_DEPS)
+        } else {
+//            println "find QualifiedContent.Scope.PROJECT_LOCAL_DEPS Deprecated.class "
+            return Sets.immutableEnumSet(QualifiedContent.Scope.PROJECT
+                    , QualifiedContent.Scope.EXTERNAL_LIBRARIES
+                    , QualifiedContent.Scope.SUB_PROJECTS)
+        }
     }
 
     @Override
@@ -73,8 +91,10 @@ public class PluginImpl extends Transform implements Plugin<Project> {
     @Override
     void transform(Context context, Collection<TransformInput> inputs, Collection<TransformInput> referencedInputs,
                    TransformOutputProvider outputProvider, boolean isIncremental) throws IOException, TransformException, InterruptedException {
-        println '==================anna transform start=================='
+        println '==================ATOM transform start=================='
         //遍历inputs里的TransformInput
+        if(outputProvider!=null)
+            outputProvider.deleteAll()
         inputs.each { TransformInput input ->
             //遍历input里边的DirectoryInput
             input.directoryInputs.each {
@@ -128,8 +148,9 @@ public class PluginImpl extends Transform implements Plugin<Project> {
                                             clazzNode = AtomClazzMaker.makeClazzNode(type, cv.mClazzNode.values)
                                         }
                                     }
+                                    println name
                                     ClassWriter makeClassWriter = new ClassWriter(classReader,ClassWriter.COMPUTE_MAXS)
-                                    AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes,clazzNode )
+                                    AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes,clazzNode,cv.mForeachNode )
                                     classReader.accept(makecv, EXPAND_FRAMES)
                                     byte[] code = makeClassWriter.toByteArray()
                                     FileOutputStream fos = new FileOutputStream(
@@ -182,6 +203,7 @@ public class PluginImpl extends Transform implements Plugin<Project> {
 
                         InputStream inputStream = jarFile.getInputStream(jarEntry);
                         //如果是inject文件就跳过
+                        println entryName
                         if (entryName.endsWith(".class") && !entryName.contains("R\$") &&
                                 !entryName.contains("R.class") && !entryName.contains("BuildConfig.class")) {
                             //class文件处理
@@ -208,7 +230,7 @@ public class PluginImpl extends Transform implements Plugin<Project> {
                                 }
                             }
                             ClassWriter makeClassWriter = new ClassWriter(classReader,ClassWriter.COMPUTE_MAXS)
-                            AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes,clazzNode )
+                            AtomMakeClassVisitor makecv = new AtomMakeClassVisitor(Opcodes.ASM5,makeClassWriter, cv.mClazzName, cv.mAtomNodes,clazzNode ,cv.mForeachNode)
                             classReader.accept(makecv, EXPAND_FRAMES)
                             byte[] code = makeClassWriter.toByteArray()
                             jarOutputStream.write(code);
@@ -271,6 +293,6 @@ public class PluginImpl extends Transform implements Plugin<Project> {
         //结束
         jarOutputStream.close();
 
-        println '==================Anna transform end=================='
+        println '==================ATOM transform end=================='
     }
 }
